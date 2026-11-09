@@ -269,6 +269,9 @@ class RainbondTelemetryService(object):
 
     def track_instance_registered(self):
         try:
+            # Do not persist telemetry markers while telemetry is switched off.
+            if not self.is_enabled():
+                return False
             if not self._create_flag_if_absent(REGISTERED_KEY):
                 return False
             return self.capture("rainbond_instance_registered")
@@ -278,6 +281,8 @@ class RainbondTelemetryService(object):
 
     def track_instance_heartbeat(self):
         try:
+            if not self.is_enabled():
+                return False
             day_key = HEARTBEAT_KEY_PREFIX + self.now().strftime("%Y%m%d")
             if not self._create_flag_if_absent(day_key):
                 return False
@@ -288,6 +293,8 @@ class RainbondTelemetryService(object):
 
     def track_app_created(self, tenant=None, region_name="", app=None, source="rainbond"):
         try:
+            if not self.is_enabled():
+                return False
             is_first_app = self._create_flag_if_absent(FIRST_APP_KEY)
             return self.capture("rainbond_app_created", {
                 "region_name": region_name,
